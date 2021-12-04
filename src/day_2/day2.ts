@@ -1,3 +1,5 @@
+//EXERCISE LINK: https://adventofcode.com/2021/day/2
+
 import { readAndMapInputToArray } from "../utils/utils";
 
 //forward adds to the horizontal

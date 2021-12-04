@@ -1,3 +1,5 @@
+//EXERCISE LINK: https://adventofcode.com/2021/day/3
+
 import { readAndMapInputToArray } from "../utils/utils";
 
 export const puzzle1 = (list: string[]) => {

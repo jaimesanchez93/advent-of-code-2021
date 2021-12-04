@@ -1,3 +1,5 @@
+//EXERCISE LINK: https://adventofcode.com/2021/day/1
+
 import path from "path";
 
 import { readAndMapInputToArray } from "../utils/utils";
