@@ -3,6 +3,7 @@ import { promises as fs } from "fs";
 export const readAndMapInputToArray = async (file: string) => {
   try {
     const data = await fs.readFile(file, "utf8");
+
     const inputList = transformInputToArray(data);
     return inputList;
   } catch (error) {
