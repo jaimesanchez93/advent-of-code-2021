@@ -1,25 +1,22 @@
 //EXERCISE LINK:  https://adventofcode.com/2021/day/4
 
-export const puzzle1 = (input: string[]) => {
-  const outputNumbers = input[0].split(",");
-  const bingoCardsListRaw = input.slice(1);
-
-  const bingoCardsListMapped: string[][] = [];
+const mapInputToBoardFormat = (listRaw: string[]) => {
+  const mappedBoardList: string[][] = [];
 
   let card: string[] = [];
-  bingoCardsListRaw.forEach((element, index) => {
+  listRaw.forEach((element, index) => {
     if (element === "" && index > 0) {
-      bingoCardsListMapped.push(card);
+      mappedBoardList.push(card);
       card = [];
-    } else if (element !== "" && index < bingoCardsListRaw.length - 1) {
+    } else if (element !== "" && index < listRaw.length - 1) {
       card.push(element);
-    } else if (element !== "" && index === bingoCardsListRaw.length - 1) {
+    } else if (element !== "" && index === listRaw.length - 1) {
       card.push(element);
-      bingoCardsListMapped.push(card);
+      mappedBoardList.push(card);
     }
   });
 
-  let finalBingo = bingoCardsListMapped.map((card) => {
+  return mappedBoardList.map((card) => {
     const mappedCard = card.map((line, row) => {
       const lineSplit = line
         .split(" ")
@@ -34,11 +31,20 @@ export const puzzle1 = (input: string[]) => {
     });
     return mappedCard.flat();
   });
+};
+
+export const puzzle1 = (input: string[]) => {
+  const outputNumbers = input[0].split(",");
+  const bingoCardsListRaw = input.slice(1);
+
+  let boards = mapInputToBoardFormat(bingoCardsListRaw);
 
   let winner = false;
   let finalPrize = 0;
-  outputNumbers.forEach((outputNumber, index) => {
-    const mappedBingo = finalBingo.map((card) => {
+  for (let numberIndex = 0; numberIndex < outputNumbers.length; numberIndex++) {
+    const outputNumber = outputNumbers[numberIndex];
+    if (winner) break;
+    const mappedBingo = boards.map((card) => {
       const numberIndex = card.findIndex(
         (el) => el.numberValue === outputNumber
       );
@@ -47,31 +53,32 @@ export const puzzle1 = (input: string[]) => {
       }
       return card;
     });
-    mappedBingo.forEach((card) => {
-      if (!winner) {
-        const filteredCard = card.filter((el) => el.marked === true);
-        for (let i = 0; i <= 4; i++) {
-          const rowFiltered = filteredCard.filter((num) => num.row === i);
-          const columnFiltered = filteredCard.filter((num) => num.column === i);
-          if (rowFiltered.length === 5 || columnFiltered.length === 5) {
-            console.log("bingo!", rowFiltered);
-            const unmarkedSum = card
-              .filter((el) => el.marked === false)
-              .map((element) => Number(element.numberValue))
-              .reduce((num, acc = 0) => {
-                return acc + num;
-              });
-            const prize = unmarkedSum * Number(outputNumber);
-            console.log("winner prize!", prize);
-            winner = true;
-            finalPrize = prize;
-            break;
-          }
+    for (let cardIndex = 0; cardIndex < mappedBingo.length; cardIndex++) {
+      const card = mappedBingo[cardIndex];
+      if (winner) break;
+      const filteredCard = card.filter((el) => el.marked === true);
+      for (let i = 0; i <= 4; i++) {
+        const rowFiltered = filteredCard.filter((num) => num.row === i);
+        const columnFiltered = filteredCard.filter((num) => num.column === i);
+        if (rowFiltered.length === 5 || columnFiltered.length === 5) {
+          console.log("bingo!", rowFiltered);
+          const unmarkedSum = card
+            .filter((el) => el.marked === false)
+            .map((element) => Number(element.numberValue))
+            .reduce((num, acc = 0) => {
+              return acc + num;
+            });
+          const prize = unmarkedSum * Number(outputNumber);
+          console.log("winner prize!", prize);
+          winner = true;
+          finalPrize = prize;
+          break;
         }
       }
-    });
-    finalBingo = mappedBingo;
-  });
+    }
+    boards = mappedBingo;
+  }
+
   return finalPrize;
 };
 
@@ -79,40 +86,11 @@ export const puzzle2 = (input: string[]) => {
   const outputNumbers = input[0].split(",");
   const bingoCardsListRaw = input.slice(1);
 
-  const bingoCardsListMapped: string[][] = [];
+  let boards = mapInputToBoardFormat(bingoCardsListRaw);
 
-  let card: string[] = [];
-  bingoCardsListRaw.forEach((element, index) => {
-    if (element === "" && index > 0) {
-      bingoCardsListMapped.push(card);
-      card = [];
-    } else if (element !== "" && index < bingoCardsListRaw.length - 1) {
-      card.push(element);
-    } else if (element !== "" && index === bingoCardsListRaw.length - 1) {
-      card.push(element);
-      bingoCardsListMapped.push(card);
-    }
-  });
-
-  let finalBingo = bingoCardsListMapped.map((card) => {
-    const mappedCard = card.map((line, row) => {
-      const lineSplit = line
-        .split(" ")
-        .filter((element) => element !== "")
-        .map((value, index) => ({
-          numberValue: value,
-          marked: false,
-          row,
-          column: index,
-        }));
-      return lineSplit;
-    });
-    return mappedCard.flat();
-  });
-
-  let winner: any[] = [];
+  const winnerList: any[] = [];
   outputNumbers.forEach((outputNumber, index) => {
-    const mappedBingo = finalBingo.map((card) => {
+    const mappedBingo = boards.map((card) => {
       const numberIndex = card.findIndex(
         (el) => el.numberValue === outputNumber
       );
@@ -136,7 +114,7 @@ export const puzzle2 = (input: string[]) => {
                 return acc + num;
               });
             const prize = unmarkedSum * Number(outputNumber);
-            winner.push({ prize, board: boardIndex });
+            winnerList.push({ prize, board: boardIndex });
             boardWins = true;
           }
           break;
@@ -146,9 +124,9 @@ export const puzzle2 = (input: string[]) => {
         mappedBingo.splice(boardIndex, 1);
       }
     });
-    finalBingo = mappedBingo;
+    boards = mappedBingo;
   });
   //final winner is the last winner number
-  console.log("finnal winner!", winner[winner.length - 1]);
-  return winner[winner.length - 1].prize;
+  console.log("finnal winner!", winnerList[winnerList.length - 1]);
+  return winnerList[winnerList.length - 1].prize;
 };
