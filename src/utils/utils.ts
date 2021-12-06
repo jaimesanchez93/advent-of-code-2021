@@ -1,11 +1,19 @@
 import { promises as fs } from "fs";
 
-export const readAndMapInputToArray = async (file: string) => {
+type SplitOptions = "lineBreak" | "comma";
+
+export const readAndMapInputToArray = async (
+  file: string,
+  splitMethod: SplitOptions = "lineBreak"
+) => {
   try {
     const data = await fs.readFile(file, "utf8");
-
-    const inputList = transformInputToArray(data);
-    return inputList;
+    switch (splitMethod) {
+      case "comma":
+        return splitInputSeparatedByComma(data);
+      default:
+        return transformInputToArray(data);
+    }
   } catch (error) {
     console.error(error);
     return [];
@@ -15,4 +23,8 @@ export const readAndMapInputToArray = async (file: string) => {
 const transformInputToArray = (input: string) => {
   const inputList = input.split("\n");
   return inputList;
+};
+
+const splitInputSeparatedByComma = (input: string) => {
+  return input.split(",");
 };
